@@ -108,13 +108,26 @@ WITH posts_stats AS (
 Rank_posts AS (
         SELECT *, PERCENT_RANK() OVER ( ORDER BY Total_engagements DESC ) AS percentile 
     FROM posts_stats
+    ),
+top_content_type AS (
+        SELECT content_type,COUNT(*) AS Top_content_type_count,COUNT(*)*100.0/(SELECT COUNT(*) FROM Rank_posts) AS Percentage
+        FROM Rank_posts
+        WHERE percentile<=0.1
+        GROUP BY content_type
+        ),
+top_total AS (
+        SELECT COUNT(*) AS total_top_posts
+    FROM Rank_posts
+    WHERE percentile<=0.1
     )
-SELECT content_type,COUNT(*) AS Top_content_type_count,ROUND(AVG(Total_engagements),2) AS Average_engagements
-FROM Rank_posts
-WHERE percentile<0.1
-GROUP BY content_type
-ORDER BY Top_content_type_count DESC
-LIMIT 1;
+SELECT 
+        tct.content_type,
+    tct.top_content_type_count,
+    tt.total_top_posts,
+    ROUND(tct.top_content_type_count*100.0/tt.total_top_posts,2) AS percentage
+FROM top_content_type tct 
+CROSS JOIN top_total tt 
+ORDER BY tct.top_content_type_count DESC;
 ```
 #### 6. Find sponsored posts with below-average engagement rates.
 ``` sql
