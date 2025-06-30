@@ -1,2 +1,4 @@
-content_type,Top_content_type_count,Average_engagements
-Reel,2,3.00
+content_type,top_content_type_count,total_top_posts,percentage
+Reel,2,4,50.00
+Video,1,4,25.00
+Image,1,4,25.00
