@@ -164,18 +164,19 @@ WHERE
 #### 8. Calculate the average time between a post's creation and its first engagement.
 ``` sql
 WITH post_stats AS (
-        SELECT p.post_id,p.post_time,MIN(e.engagement_time) AS First_engagement_time
+        SELECT p.post_id,p.content_type,p.post_time,MIN(e.engagement_time) AS First_engagement_time
         FROM posts p 
         JOIN engagements e 
         ON p.post_id=e.post_id
-        GROUP BY p.post_id
+        GROUP BY p.post_id,p.content_type
     ),
 engagement_time AS ( 
-        SELECT TIMESTAMPDIFF(MINUTE,post_time,First_engagement_time) AS time_difference
+        SELECT content_type,TIMESTAMPDIFF(MINUTE,post_time,First_engagement_time) AS time_difference
         FROM post_stats
     )
-SELECT ROUND(AVG(time_difference),2) AS Average_time 
-FROM engagement_time;
+SELECT content_type,ROUND(AVG(time_difference),2) AS Average_time 
+FROM engagement_time
+GROUP BY content_type;
 ```
 #### 9. Find users who consistently engage (like/comment) with the same creator's content.
 ``` sql
